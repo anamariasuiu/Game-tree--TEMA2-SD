@@ -1,0 +1,90 @@
+In structura tree:
+char a[3][6] reprezinta tabla de joc sub forma de matrice de caractere care contine atat
+space-uri cat si new lines.
+char true_false reprezinta caracterul cu valoare T sau F pentru fiecare nod, folosit pentru
+cerinta2
+Pointerul de tip struct tree *child care reprezinta nodul fiu
+Pointerul de tip struct *next_node care reprezinta nodul vecin sau nodul frate
+In main:
+Deschide fisierul de intrare si cel de iesire cu fopen,fiind al doilea, respectiv al treile
+argument din linia de comanda. Comparam primul argument din linia de comanda cu sirul "-c1"
+si daca sunt egale apelam functia cerinta1, si respectiv cu sirul "-c2" si daca sunt egale 
+apelam functia cerinta2.
+In functia cerinta1 :
+Citim cu fgetc primul caracter din fisierul de intrare care va fi playerul 1(jucatorul curent)
+si begginerul(cel care incepe fiecare joc).
+Playerului 2 ii atribuim caracterul specific jucatorului adversar(X sau 0) cu ajutorul 
+conditiei if else. Initializam o structura de tip tree cu radacina root si in aceasta citim
+din fisier_in tabla initiala de joc sub forma de matrice de caractere. Numaram tototdata si
+cate liniute are tabla. Apelam functia print_table ca sa printam in fisierul_out tabla
+initiala. Apelam functia generate_tree ca sa generam toate posibilitatile de joc si sa le 
+printam si pe acestea in fisier_out.
+In functia cerinta2: 
+Procedam similar ca in functia cerinta 1, doar ca apelam functia generate_tree pentru a memora
+in varibila true_false (din structura tree) caracterul T sau F pentru toate posibilitatile
+de joc.  Aflam si pentru radacina root valoarea caracterului true_false. Printam in fisier_out
+aceste valorile T/F cu ajutorul functiei parcurgere_true_false.
+In generate_tree:
+Facem o copie a matricei din nodul curent(copy_table). Numaram si liniutele din aceasta matrice
+(nr_lines). Parcurgem fiecare caracter al matricei curente si verificam cand ajungem la prima liniuta.
+Cand ajungem testam daca nodul Tree are nod de tip child. Daca nu are, alocam memorie pentru
+a creea un nou nod child. Acestui nod ii atribuim caracterele din matricea copie si schimbam
+caracterul de pe linia i coloana j cu playerul 1, fiind playerul care muta. Apelam functia
+is_end_game pentru a vedea daca avem win si daca winnerul este X sau 0. Memoram in end_game
+valoarea returnata de aceasta(1 pentru win, 0 pentru not win). Daca sirul cerinta contine cerinta1
+atunci printam tabla in fisier_out. Daca sirul cerinta contine cerinta 2, verificam pentru cazul
+in care nr_lines - 1 == 0 (adica nodul Tree este nod frunza pe ultimul nivel). Daca este end_game
+si winnerul este acelasi cu begginerul, ii atribuim char-ului true_false al nodului Tree valoarea T.
+Daca este end_game si winnerul nu este acelasi cu begginerul  ii atribuim char-ului true_false al
+nodului Tree valoarea F.
+Daca nr_lines - 1 este diferit de 0 si avem end_game, adica avem win pe un nivel diferit de ultimul
+nivel), pentru cazul in care winnerul este egal cu begginerul atunci lui true_false ii atribuim 'T',
+in caz contrat ii atribuim 'F'. Daca nu avem end_game apelam recursiv functia generate_tree pentru
+nodul curent Tree(fiind nodul child al nodului anterior), doar ca player1 va deveni player2 si vicersa
+pentru a continua cu mutarea adversarului.
+Pentru cazul in care cerinta este cerinta2, dupa generarea recursiva a tuturor posibilitatilor de joc,
+vom determina valorile caracterelor true_false pentru nodurile neterminale. Daca nu avem end_game si
+nodul curent nu este pe ultimul nivel, inseamna ca avem nod neterminal. Cu conditia 
+if (Tree->child->next_node != NULL) testam daca nodul curent are mai mult de un fiu(adica daca fiul are
+noduri vecine/frati). Daca da, testam daca toti fiii au caracter true sau false, adica diferit de 0.
+Daca niciunul nu are zerouri, atunci putem face operatia SI/SAU asupra nodului curent si atunci atribuim
+lui ok valoarea 1. Pe ramura else, adica ramura in care nodul curent are doar un copil, testam daca 
+acesta are caracter true sau false, iar daca da ok devine 1. Daca ok este 1 putem face operatia SI/SAU
+prin apelarea functiei true_false, iar rezultatul returnat de tip char va fi valoarea lui Tree->true_false,
+adica T sau F.
+Daca nodul transmis ca paremetru functiei(Tree) are nod child, atunci intram pe ramura de else pentru
+a crea un nod vecin/frate next_node. Se foloseste aceeasi implementare ca pe ramura de if anterioara.
+In functia is_end_game:
+In primul for testam pe fiecare linie daca caracterele de pe coloanele pare(pe coloanele impare avem space
+sau \n) sunt egale si nu sunt liniute. Daca da, atunci avem win si end_game devine 1, iar winnerului ii
+atribuim caracterul de pe una din pozitiile unde e win.
+In al doilea for testam pe fiecare coloana para daca avem win pe verticala. Daca da end_game devine 1, iar 
+winnerului ii atribuim caracterul de pe una din pozitiile unde e win.
+In urmatorul if testam daca avem win pe diagonala principala, iar daca este win ,end_game devine 1, iar 
+winnerului ii atribuim caracterul de pe una din pozitiile unde e win.
+In ultimul if testam daca avem win pe diagonal secundara, iar daca este win ,end_game devine 1, iar 
+winnerului ii atribuim caracterul de pe una din pozitiile unde e win.
+In functia true_false:
+Primim ca parametru int ul SI_SAU care indica nivelul pe care se afla tabla de joc curenta. Daca este pe
+pozitie impara atunci avem operatia SI, si testam daca vreunul din copiii nodului root are valoare true_false
+F. Daca da, atunci ok_si devine 0. Daca ok_si e 0 atunci nodul root va avea valoare F, daca nu va avea T.
+Daca nivelul este o pozitie para, atunci facem operatia SAU pentru nodul root. Daca gasim vreun copil al 
+nodului root care sa aiba caracterul T atunci ok_si devine 1. Daca ok_sau e 0 atunci nodul root va avea
+valoarea F, daca nu va avea T. Returnam caracterul true_false al nodului root.
+In functia parcurgere_true_false:
+Parcurgem recursiv fiecare nod al arborelui(in adancime) pentru a printa caracterul true_false al fiecarui nod
+in fisierul fisier_out.
+In functia print_table:
+Numaram numarul liniutelor din matricea nodului primit ca parametru. Numarul taburilor va fi diferenta dintre
+numarul total al liniutelor din matricea de joc radacina(liniute) si numarul liniutelor din matricea nodului
+curent(nr_lines) adica nivelul nodului.
+Printam in fisier_out cu fputc fiecare caracter al matricei curente punand numarul de taburi necesare inaintea 
+fiecarei linii.
+In functia print_true_false:
+Numaram numarul liniutelor din matricea nodului primit ca parametru. Numarul taburilor va fi diferenta dintre
+numarul total al liniutelor din matricea de joc radacina(liniute) si numarul liniutelor din matricea nodului
+curent(nr_lines) adica nivelul nodului.
+Printram in fisier_out cu fputc numarul taburilor necesare urmate de caracterul true_false(T/F) al nodului
+transmis ca parametru.
+In functia dealloc_tree:
+Eliberam memoria parcurgand recursiv pentru fiecare nod in parte.
